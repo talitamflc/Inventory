@@ -28,6 +28,8 @@ import com.example.inventory.ui.item.ItemDetailsViewModel
 import com.example.inventory.ui.item.ItemEditViewModel
 import com.example.inventory.ui.item.ItemEntryViewModel
 
+//#8 atualizar initializer
+
 /**
  * Provides Factory to create instance of ViewModel for the entire Inventory app
  */
@@ -39,9 +41,10 @@ object AppViewModelProvider {
                 this.createSavedStateHandle()
             )
         }
-        // Initializer for ItemEntryViewModel
+        // Initializer for ItemEntryViewModel #8 atualizar parametro
+        // prox passo-> volta pro ItemEntryViewModel - final da classe
         initializer {
-            ItemEntryViewModel()
+            ItemEntryViewModel(inventoryApplication().container.itemsRepository)
         }
 
         // Initializer for ItemDetailsViewModel

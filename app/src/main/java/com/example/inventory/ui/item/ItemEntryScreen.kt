@@ -33,6 +33,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
@@ -45,9 +46,11 @@ import com.example.inventory.R
 import com.example.inventory.ui.AppViewModelProvider
 import com.example.inventory.ui.navigation.NavigationDestination
 import com.example.inventory.ui.theme.InventoryTheme
+import kotlinx.coroutines.launch
 import java.util.Currency
 import java.util.Locale
 
+//#10
 object ItemEntryDestination : NavigationDestination {
     override val route = "item_entry"
     override val titleRes = R.string.item_entry_title
@@ -61,6 +64,9 @@ fun ItemEntryScreen(
     canNavigateBack: Boolean = true,
     viewModel: ItemEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    //#10 add a val coroutineScope, depois -> atualiza a chamada ItemEntryBody, onSaveClick parametro
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             InventoryTopAppBar(
@@ -73,7 +79,12 @@ fun ItemEntryScreen(
         ItemEntryBody(
             itemUiState = viewModel.itemUiState,
             onItemValueChange = viewModel::updateUiState,
-            onSaveClick = { },
+            onSaveClick = {
+                coroutineScope.launch {    //#10 cont. finalizando o passo, run app -> possivel ver a tela add item e inserir textos
+                    viewModel.saveItem()
+                    navigateBack()          //apos salvar retorna a tela anterior
+                }
+            },  //#10 -> #11 prox passo ->
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -96,13 +107,13 @@ fun ItemEntryBody(
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
-        ) {
+    ) {
         ItemInputForm(
-            itemDetails = itemUiState.itemDetails,
+            itemDetails = itemUiState.itemDetails,  //atualiza com o valor que os user colocam no campo de texto
             onValueChange = onItemValueChange,
             modifier = Modifier.fillMaxWidth()
         )
-        Button(
+        Button(  //Botao Salvar so eh habilitado se os 3 campos de ItemInputForm forem preenchidos
             onClick = onSaveClick,
             enabled = itemUiState.isEntryValid,
             shape = MaterialTheme.shapes.small,
@@ -126,7 +137,7 @@ fun ItemInputForm(
     ) {
         OutlinedTextField(
             value = itemDetails.name,
-            onValueChange = { onValueChange(itemDetails.copy(name = it)) },
+            onValueChange = { onValueChange(itemDetails.copy(name = it)) },  //atualiza os dados
             label = { Text(stringResource(R.string.item_name_req)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -179,10 +190,11 @@ fun ItemInputForm(
 @Composable
 private fun ItemEntryScreenPreview() {
     InventoryTheme {
-        ItemEntryBody(itemUiState = ItemUiState(
-            ItemDetails(
-                name = "Item name", price = "10.00", quantity = "5"
-            )
-        ), onItemValueChange = {}, onSaveClick = {})
+        ItemEntryBody(
+            itemUiState = ItemUiState(
+                ItemDetails(
+                    name = "Item name", price = "10.00", quantity = "5"
+                )
+            ), onItemValueChange = {}, onSaveClick = {})
     }
 }

@@ -24,6 +24,8 @@ import androidx.room.PrimaryKey
  * Entity data class represents a single row in the database.
  */
 
+
+//#1 @Entity e @PrimaryKey
 @Entity(tableName = "items")
 data class Item(
     @PrimaryKey(autoGenerate = true)
@@ -32,3 +34,6 @@ data class Item(
     val price: Double,
     val quantity: Int
 )
+
+
+//Prox passo -> ItemDao

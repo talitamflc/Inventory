@@ -21,12 +21,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.inventory.data.Item
+import com.example.inventory.data.ItemsRepository
 import java.text.NumberFormat
+
+//#7
 
 /**
  * ViewModel to validate and insert items in the Room database.
  */
-class ItemEntryViewModel : ViewModel() {
+class ItemEntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel() {
 
     /**
      * Holds current item ui state
@@ -46,9 +49,19 @@ class ItemEntryViewModel : ViewModel() {
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
             name.isNotBlank() && price.isNotBlank() && quantity.isNotBlank()
+        } //verificar a entrada do usuário antes de adicionar ou atualizar a entidade no banco de dados.
+    }
+
+    //voltando do #8, cria essa funcao e vai para -> ItemEntryScreen
+
+    suspend fun saveItem() {    //Essa função adiciona os dados ao banco de dados de forma não bloqueante.
+        if (validateInput()) {
+            itemsRepository.insertItem(itemUiState.itemDetails.toItem())  //A interface do usuário chama essa função para adicionar detalhes do item ao banco de dados.
         }
     }
 }
+
+//#7 prox passo -> pasta theme -> #8 AppViewModelProvider
 
 /**
  * Represents Ui State for an Item.
@@ -58,7 +71,7 @@ data class ItemUiState(
     val isEntryValid: Boolean = false
 )
 
-data class ItemDetails(
+data class ItemDetails(   //representa um único item
     val id: Int = 0,
     val name: String = "",
     val price: String = "",

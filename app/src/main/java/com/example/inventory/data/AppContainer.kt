@@ -28,11 +28,17 @@ interface AppContainer {
 /**
  * [AppContainer] implementation that provides instance of [OfflineItemsRepository]
  */
+
+//#6 instancia o banco de dados e passa a instância do DAO - ultimo passo para trabalhar com a Room
 class AppDataContainer(private val context: Context) : AppContainer {
     /**
-     * Implementation for [ItemsRepository]
+     * Implementation for [ItemsRepository]  #6
      */
     override val itemsRepository: ItemsRepository by lazy {
-        OfflineItemsRepository()
+        OfflineItemsRepository(InventoryDatabase.getDatabase(context).itemDao())
     }
 }
+
+//Proximo passo -> ViewModel em ItemEntryViewModel
+//Todas as operações de banco de dados precisam ser executadas fora da thread principal
+// da interface do usuário; você faz isso com corrotinas e objetos viewModelScope

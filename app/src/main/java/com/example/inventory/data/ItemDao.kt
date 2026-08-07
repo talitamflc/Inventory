@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+//#2
 @Dao
 interface ItemDao {
 
@@ -20,9 +21,12 @@ interface ItemDao {
     @Delete
     suspend fun delete(item: Item)
 
-    @Query("SELECT * from items WHERE id = :id")
+    @Query("SELECT * from items WHERE id = :id")  //localizar pelo id
     fun getItem(id: Int): Flow<Item>
 
     @Query("SELECT * from items ORDER BY name ASC")
     fun getAllItems(): Flow<List<Item>>
 }
+
+
+//Proximo pass0 -> InventoryDatabase
